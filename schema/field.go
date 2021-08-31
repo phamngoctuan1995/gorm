@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/jinzhu/now"
 	"gorm.io/gorm/utils"
@@ -441,8 +442,12 @@ func (field *Field) setupValuerAndSetter() {
 	// ReflectValueOf
 	switch {
 	case len(field.StructField.Index) == 1:
+		//field.ReflectValueOf = func(value reflect.Value) reflect.Value {
+		//	return reflect.Indirect(value).Field(field.StructField.Index[0])
+		//}
 		field.ReflectValueOf = func(value reflect.Value) reflect.Value {
-			return reflect.Indirect(value).Field(field.StructField.Index[0])
+			baseReflect := reflect.Indirect(value).Field(field.StructField.Index[0])
+			return reflect.NewAt(baseReflect.Type(), unsafe.Pointer(baseReflect.UnsafeAddr())).Elem()
 		}
 	case len(field.StructField.Index) == 2 && field.StructField.Index[0] >= 0 && field.FieldType.Kind() != reflect.Ptr:
 		field.ReflectValueOf = func(value reflect.Value) reflect.Value {

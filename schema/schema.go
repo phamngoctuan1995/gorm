@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go/ast"
 	"reflect"
 	"sync"
 
@@ -134,7 +133,8 @@ func Parse(dest interface{}, cacheStore *sync.Map, namer Namer) (*Schema, error)
 	}()
 
 	for i := 0; i < modelType.NumField(); i++ {
-		if fieldStruct := modelType.Field(i); ast.IsExported(fieldStruct.Name) {
+		//if fieldStruct := modelType.Field(i); ast.IsExported(fieldStruct.Name) {
+		if fieldStruct := modelType.Field(i); true {
 			if field := schema.ParseField(fieldStruct); field.EmbeddedSchema != nil {
 				schema.Fields = append(schema.Fields, field.EmbeddedSchema.Fields...)
 			} else {
