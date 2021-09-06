@@ -405,8 +405,13 @@ func (field *Field) setupValuerAndSetter() {
 	// ValueOf
 	switch {
 	case len(field.StructField.Index) == 1:
+		//field.ValueOf = func(value reflect.Value) (interface{}, bool) {
+		//	fieldValue := reflect.Indirect(value).Field(field.StructField.Index[0])
+		//	return fieldValue.Interface(), fieldValue.IsZero()
+		//}
 		field.ValueOf = func(value reflect.Value) (interface{}, bool) {
-			fieldValue := reflect.Indirect(value).Field(field.StructField.Index[0])
+			baseReflect := reflect.Indirect(value).Field(field.StructField.Index[0])
+			fieldValue := reflect.NewAt(baseReflect.Type(), unsafe.Pointer(baseReflect.UnsafeAddr())).Elem()
 			return fieldValue.Interface(), fieldValue.IsZero()
 		}
 	case len(field.StructField.Index) == 2 && field.StructField.Index[0] >= 0:
